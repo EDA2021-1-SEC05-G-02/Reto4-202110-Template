@@ -26,7 +26,6 @@
 import config
 from DISClib.DataStructures import listnode as node
 from DISClib.Utils import error as error
-import csv
 assert config
 
 """
@@ -40,25 +39,13 @@ assert config
 """
 
 
-def newList(cmpfunction, key, filename, delim):
+def newList(cmpfunction=None):
     """Crea una lista vacia.
 
     Se inicializan los apuntadores a la primera y ultima posicion en None.
     El tipo de la listase inicializa como SINGLE_LINKED
     Args:
-        cmpfunction: Función de comparación para los elementos de la lista.
-        Si no se provee una función de comparación, se utilizará la función
-        de comparación por defecto pero se debe suministrar un valor para key
-
-        key: Identificador que se debe utilizar para la comparación de
-        elementos de la lista
-
-        filename: Si se provee este valor, se creará una lista a partir de
-        la informacion que se encuentra en el archivo CSV
-
-        delimiter: Si se provee un archivo para crear la lista, indica el
-        delimitador a usar para separar los campos del archivo CSV
-
+        cmpfunction: Función de comparación para los elementos de la lista
     Returns:
         Un diccionario que representa la estructura de datos de una lista
         encadanada vacia.
@@ -66,23 +53,12 @@ def newList(cmpfunction, key, filename, delim):
     Raises:
 
     """
-    newlist = {'first': None,
-               'last': None,
-               'size': 0,
-               'key': key,
-               'type': 'SINGLE_LINKED'}
-
-    if(cmpfunction is None):
-        newlist['cmpfunction'] = defaultfunction
-    else:
-        newlist['cmpfunction'] = cmpfunction
-
-    if (filename is not None):
-        input_file = csv.DictReader(open(filename, encoding="utf-8"),
-                                    delimiter=delim)
-        for line in input_file:
-            addLast(newlist, line)
-    return newlist
+    new_list = {'first': None,
+                'last': None,
+                'size': 0,
+                'type': 'SINGLE_LINKED',
+                'cmpfunction': cmpfunction}
+    return new_list
 
 
 def addFirst(lst, element):
@@ -250,14 +226,13 @@ def deleteElement(lst, pos):
         searchpos = 1
         if (pos == 1):
             lst['first'] = lst['first']['next']
-            lst['size'] -= 1
         elif(pos > 1):
             while searchpos < pos:
                 searchpos += 1
                 prev = node
                 node = node['next']
             prev['next'] = node['next']
-            lst['size'] -= 1
+        lst['size'] -= 1
         return lst
     except Exception as exp:
         error.reraise(exp, 'singlelinkedlist->deleteElement: ')
@@ -381,11 +356,10 @@ def isPresent(lst, element):
             node = lst['first']
             keyexist = False
             for keypos in range(1, size+1):
-                if (node is not None):
-                    if (compareElements(lst, element, node['info']) == 0):
-                        keyexist = True
-                        break
-                    node = node['next']
+                if (lst['cmpfunction'](element, node['info']) == 0):
+                    keyexist = True
+                    break
+                node = node['next']
             if keyexist:
                 return keypos
         return 0
@@ -459,7 +433,6 @@ def subList(lst, pos, numelem):
                   'last': None,
                   'size': 0,
                   'type': 'SINGLE_LINKED',
-                  'key': lst['key'],
                   'cmpfunction': lst['cmpfunction']}
         cont = 1
         loc = pos
@@ -471,53 +444,3 @@ def subList(lst, pos, numelem):
         return sublst
     except Exception as exp:
         error.reraise(exp, 'singlelinkedlist->subList: ')
-
-
-def iterator(lst):
-    """ Retorna un iterador para la lista.
-    Args:
-        lst: La lista a iterar
-
-    Raises:
-        Exception
-    """
-    try:
-        if(lst is not None):
-            current = lst['first']
-            while current is not None:
-                yield current['info']
-                current = current['next']
-    except Exception as exp:
-        error.reraise(exp, 'singlelinkedlist->Iterator')
-
-
-def compareElements(lst, element, info):
-    """ Compara dos elementos
-
-    Se utiliza la función de comparación por defecto si key es None
-    o la función provista por el usuario en caso contrario
-    Args:
-        lst: La lista con los elementos
-        element:  El elemento que se esta buscando en la lista
-        info: El elemento de la lista que se está analizando
-
-    Returns:  0 si los elementos son iguales
-
-    Raises:
-        Exception
-    """
-    try:
-        if(lst['key'] is not None):
-            return lst['cmpfunction'](element[lst['key']], info[lst['key']])
-        else:
-            return lst['cmpfunction'](element, info)
-    except Exception as exp:
-        error.reraise(exp, 'singlelinkedlist->compareElements')
-
-
-def defaultfunction(id1, id2):
-    if id1 > id2:
-        return 1
-    elif id1 < id2:
-        return -1
-    return 0

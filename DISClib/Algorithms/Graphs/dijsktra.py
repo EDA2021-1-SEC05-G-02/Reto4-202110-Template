@@ -27,7 +27,7 @@
 
 import config
 from DISClib.DataStructures import edge as e
-from DISClib.ADT import list as lt
+from DISClib.DataStructures import listiterator as it
 from DISClib.ADT import indexminpq as iminpq
 from DISClib.ADT import map as map
 from DISClib.ADT import graph as g
@@ -55,7 +55,9 @@ def Dijkstra(graph, source):
             v = iminpq.delMin(search['iminpq'])
             edges = g.adjacentEdges(graph, v)
             if edges is not None:
-                for edge in lt.iterator(edges):
+                edgesiter = it.newIterator(edges)
+                while (it.hasNext(edgesiter)):
+                    edge = it.next(edgesiter)
                     relax(search, edge)
         return search
     except Exception as exp:
@@ -195,7 +197,9 @@ def initSearch(graph, source):
                                        comparefunction=graph['comparefunction']
                                        )
         vertices = g.vertices(graph)
-        for vert in lt.iterator(vertices):
+        itvertices = it.newIterator(vertices)
+        while (it.hasNext(itvertices)):
+            vert = it.next(itvertices)
             map.put(search['visited'],
                     vert,
                     {'marked': False, 'edgeTo': None, 'distTo': math.inf}
@@ -212,3 +216,4 @@ def initSearch(graph, source):
         return search
     except Exception as exp:
         error.reraise(exp, 'dks:init')
+

@@ -42,7 +42,7 @@ Sedgewick: 1,5,19,41,109,209,929,2161,...
 """
 
 
-def sort(lst, cmpfunction):
+def shellSort(lst, lessfunction):
     n = lt.size(lst)
     h = 1
     while h < n/3:   # primer gap. La lista se h-ordena con este tamaño
@@ -50,10 +50,9 @@ def sort(lst, cmpfunction):
     while (h >= 1):
         for i in range(h, n):
             j = i
-            while (j >= h) and cmpfunction(
-                                lt.getElement(lst, j+1),
-                                lt.getElement(lst, j-h+1)):
+            ant = lt.getElement(lst, j+1)
+            post = lt.getElement(lst, j-h+1)
+            while (j >= h) and lessfunction(ant, post):
                 lt.exchange(lst, j+1, j-h+1)
                 j -= h
         h //= 3    # h se decrementa en un tercio
-    return lst

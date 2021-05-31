@@ -86,10 +86,7 @@ def pop(stack):
         Exception
     """
     try:
-        if stack is not None and not lt.isEmpty(stack):
-            return lt.removeFirst(stack)
-        else:
-            raise Exception
+        return lt.removeFirst(stack)
     except Exception as exp:
         error.reraise(exp, 'TADStack->pop: ')
 
